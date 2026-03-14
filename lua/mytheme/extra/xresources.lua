@@ -1,0 +1,38 @@
+local util = require("mytheme.util")
+
+local M = {}
+
+--- @param colors ColorScheme
+function M.generate(colors)
+  local xr = util.template(
+    [[
+! ${_style_name} colors for Xresources
+
+*background: ${bg}
+*foreground: ${fg}
+
+*color0: ${black}
+*color1: ${red}
+*color2: ${green}
+*color3: ${yellow}
+*color4: ${blue}
+*color5: ${magenta}
+*color6: ${cyan_light}
+*color7: ${fg_dim}
+
+*color8: ${fg_ghost}
+*color9: ${red}
+*color10: ${green}
+*color11: ${yellow}
+*color12: ${blue}
+*color13: ${magenta}
+*color14: ${cyan_light}
+*color15: ${fg}
+ 
+]],
+    colors
+  )
+  return xr
+end
+
+return M
