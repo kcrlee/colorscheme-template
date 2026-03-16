@@ -21,13 +21,13 @@ You'll be prompted for a name (e.g. `nightfox`, `Ice Cream`). The script will:
 
 Open `lua/<yourscheme>/colors/dark.lua` and replace the placeholder `#000000` values with your colors. The file is organized into sections:
 
-| Section | Colors | Used for |
-|---------|--------|----------|
-| **Backgrounds** | `bg`, `bg_dark`, `bg_darker`, `bg_highlight` | Editor, popups, sidebars, cursorline |
-| **Foregrounds** | `fg`, `fg_dim`, `fg_gutter`, `fg_muted`, `fg_secondary`, `fg_ghost`, `comment` | Text, line numbers, ghost text, comments |
-| **Core syntax** | `blue`, `green`, `red`, `orange`, `yellow`, `magenta`, `purple`, `teal` | Functions, strings, errors, constants, warnings, etc. |
-| **Extended palette** | `blue_dim`, `blue_bright`, `cyan`, `cyan_bright`, `green_bright`, `teal_dim`, `red_dim`, `accent` | Diagnostics, diffs, search, navigation labels |
-| **Git** | `git.add`, `git.change`, `git.delete` | Gutter indicators |
+| Section              | Colors                                                                                            | Used for                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Backgrounds**      | `bg`, `bg_dark`, `bg_darker`, `bg_highlight`                                                      | Editor, popups, sidebars, cursorline                  |
+| **Foregrounds**      | `fg`, `fg_dim`, `fg_gutter`, `fg_muted`, `fg_secondary`, `fg_ghost`, `comment`                    | Text, line numbers, ghost text, comments              |
+| **Core syntax**      | `blue`, `green`, `red`, `orange`, `yellow`, `magenta`, `purple`, `teal`                           | Functions, strings, errors, constants, warnings, etc. |
+| **Extended palette** | `blue_dim`, `blue_bright`, `cyan`, `cyan_bright`, `green_bright`, `teal_dim`, `red_dim`, `accent` | Diagnostics, diffs, search, navigation labels         |
+| **Git**              | `git.add`, `git.change`, `git.delete`                                                             | Gutter indicators                                     |
 
 See `COLORS.md` for detailed descriptions of where every color appears.
 
