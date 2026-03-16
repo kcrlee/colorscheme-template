@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TEMPLATE_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+# ── Naming strategy ──────────────────────────────────────────────
+# Given raw user input (e.g. "My Cool Theme"), produce:
+#   SCHEME_ID   – lowercase, no spaces/hyphens, valid Lua identifier
+#                 used for: directory name, require() paths, filenames
+#   SCHEME_NAME – display name used in generated config comments
+#
+# Examples:
+#   "nightfox"       → ID: nightfox,      NAME: Nightfox
+#   "My Cool Theme"  → ID: mycooltheme,   NAME: My Cool Theme
+#   "ice-cream"      → ID: icecream,      NAME: Ice Cream
+derive_names() {
+  local raw="$1"
+
+  SCHEME_ID="$(printf '%s' "$raw" | tr -cd '[:alnum:]' | tr '[:upper:]' '[:lower:]')"
+  SCHEME_NAME="$raw"
+}
+
+# ── Prompt ────────────────────────────────────────────────────────
+printf "What would you like to call your colorscheme? "
+read -r INPUT
+
+if [[ -z "$INPUT" ]]; then
+  echo "Error: name cannot be empty" >&2
+  exit 1
+fi
+
+derive_names "$INPUT"
+
+if [[ -z "$SCHEME_ID" ]]; then
+  echo "Error: derived ID is empty — check derive_names()" >&2
+  exit 1
+fi
+
+DEST="$(pwd)/$SCHEME_ID"
+
+if [[ -d "$DEST" ]]; then
+  echo "Error: directory '$SCHEME_ID' already exists" >&2
+  exit 1
+fi
+
+# ── Copy template (excluding .git and the scaffold script itself) ─
+echo "Creating $SCHEME_ID ..."
+rsync -a \
+  --exclude='.git' \
+  --exclude='scripts/scaffold' \
+  "$TEMPLATE_DIR/" "$DEST/"
+
+# ── Rename directories containing "mytheme" ──────────────────────
+# Process deepest paths first so parent renames don't break children
+find "$DEST" -depth -type d -name '*mytheme*' | while IFS= read -r dir; do
+  newdir="$(dirname "$dir")/$(basename "$dir" | sed "s/mytheme/$SCHEME_ID/g")"
+  mv "$dir" "$newdir"
+done
+
+# ── Rename files containing "mytheme" ────────────────────────────
+find "$DEST" -type f -name '*mytheme*' | while IFS= read -r file; do
+  newfile="$(dirname "$file")/$(basename "$file" | sed "s/mytheme/$SCHEME_ID/g")"
+  mv "$file" "$newfile"
+done
+
+# ── Replace "mytheme" inside file contents ───────────────────────
+if [[ "$(uname)" == "Darwin" ]]; then
+  find "$DEST" -type f ! -name '*.png' ! -name '*.jpg' -exec \
+    sed -i '' "s/mytheme/$SCHEME_ID/g" {} +
+else
+  find "$DEST" -type f ! -name '*.png' ! -name '*.jpg' -exec \
+    sed -i "s/mytheme/$SCHEME_ID/g" {} +
+fi
+
+# ── Update display name in extra/init.lua ────────────────────────
+EXTRA_INIT="$DEST/lua/$SCHEME_ID/extra/init.lua"
+if [[ -f "$EXTRA_INIT" ]]; then
+  if [[ "$(uname)" == "Darwin" ]]; then
+    sed -i '' "s/name = \".*\"/name = \"$SCHEME_NAME\"/" "$EXTRA_INIT"
+  else
+    sed -i "s/name = \".*\"/name = \"$SCHEME_NAME\"/" "$EXTRA_INIT"
+  fi
+fi
+
+# ── Initialize fresh git repo ────────────────────────────────────
+cd "$DEST"
+git init -q
+git add -A
+git commit -q -m "Initial scaffold from colorscheme-template"
+
+echo ""
+echo "Done! Your colorscheme is ready at ./$SCHEME_ID"
+echo ""
+echo "Next steps:"
+echo "  cd $SCHEME_ID"
+echo "  Edit lua/$SCHEME_ID/colors/ to define your palette"
+echo "  See COLORS.md for guidance on color definitions"
